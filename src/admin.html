@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Painel Admin — Eventos</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width:800px; margin:auto; }
+    form { margin-bottom: 20px; display:grid; gap:8px; }
+    input, button { padding:8px; font-size:14px; }
+    .event-list { margin-top: 20px; }
+    .event-item { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius:6px; }
+    .actions { margin-top: 8px; }
+    .actions button { margin-right: 8px; }
+    .small { font-size:13px; color:#555; }
+  </style>
+</head>
+<body>
+  <h1>Painel Admin</h1>
+
+  <!-- Formulário para adicionar novo evento (agora com month) -->
+  <form id="event-form">
+    <input type="text" id="day-number" placeholder="Dia (ex: 02)" required>
+    <input type="text" id="day-name" placeholder="Dia da semana (ex: DOMINGO)" required>
+    <input type="text" id="hour" placeholder="Hora (ex: 16h)" required>
+    <input type="text" id="event" placeholder="Evento (ex: Vôlei)" required>
+    <input type="text" id="local" placeholder="Local (ex: Parque Jacarandás - SBO)" required>
+    <input type="text" id="month" placeholder="Mês (ex: Março)" required>
+    <button type="submit">Adicionar Evento</button>
+  </form>
+
+  <h2>Eventos cadastrados</h2>
+  <div class="event-list" id="event-list"></div>
+
+  <script>
+    // --------- CONFIGURE AQUI (cole sua URL e ANON KEY do Supabase) -----------
+    const SUPABASE_URL = "https://lpobhoqdvdgijupmndqi.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwb2Job3FkdmRnaWp1cG1uZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MTgwMDIsImV4cCI6MjA3NDE5NDAwMn0.tUgbw218MhkUoWw96DvaQ3f-zu9xWiFf-w1oTp2m-kc";
+    // -------------------------------------------------------------------------
+
+    // Verifica se usuário está logado
+
+
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+client.auth.getSession().then(({ data }) => {
+  if (!data.session) {
+    // não logado → manda pro login
+    window.location.href = "login.html";
+  }
+});
+    const form = document.getElementById("event-form");
+    const eventList = document.getElementById("event-list");
+
+    // Carrega todos os eventos e renderiza como lista simples
+    async function loadEvents() {
+      eventList.innerHTML = "Carregando...";
+      const { data, error } = await client
+        .from("events")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) {
+        eventList.innerHTML = "<p class='small'>Erro ao carregar eventos. Veja console.</p>";
+        console.error(error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        eventList.innerHTML = "<p class='small'>Nenhum evento cadastrado.</p>";
+        return;
+      }
+
+      eventList.innerHTML = "";
+      data.forEach(ev => {
+        const div = document.createElement("div");
+        div.className = "event-item";
+
+        // mostra o mês junto ao título do evento (você pode adaptar)
+        div.innerHTML = `
+          <strong>${ev.day_number} ${ev.day_name} <span class="small">— ${ev.month || ""}</span></strong><br>
+          <span class="small">Hora:</span> ${ev.hour} <br>
+          <span class="small">Evento:</span> ${ev.event} <br>
+          <span class="small">Local:</span> ${ev.local} <br>
+        `;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const btnEdit = document.createElement("button");
+        btnEdit.type = "button";
+        btnEdit.textContent = "Editar";
+        btnEdit.addEventListener("click", () => editEvent(ev.id));
+
+        const btnDelete = document.createElement("button");
+        btnDelete.type = "button";
+        btnDelete.textContent = "Deletar";
+        btnDelete.addEventListener("click", () => deleteEvent(ev.id));
+
+        actions.appendChild(btnEdit);
+        actions.appendChild(btnDelete);
+        div.appendChild(actions);
+
+        eventList.appendChild(div);
+      });
+    }
+
+    // Inserir novo evento (inclui month)
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const day_number = document.getElementById("day-number").value.trim();
+      const day_name   = document.getElementById("day-name").value.trim();
+      const hour       = document.getElementById("hour").value.trim();
+      const eventName  = document.getElementById("event").value.trim();
+      const local      = document.getElementById("local").value.trim();
+      const month      = document.getElementById("month").value.trim();
+
+      if (!day_number || !day_name || !hour || !eventName || !local || !month) {
+        alert("Preencha todos os campos.");
+        return;
+      }
+
+      const { error } = await client.from("events").insert([
+        { day_number, day_name, hour, event: eventName, local, month }
+      ]);
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao adicionar evento. Veja console.");
+      } else {
+        form.reset();
+        loadEvents();
+      }
+    });
+
+    // Deletar evento
+    async function deleteEvent(id) {
+      if (!confirm("Deseja realmente deletar este evento?")) return;
+      const { error } = await client.from("events").delete().eq("id", id);
+      if (error) {
+        console.error(error);
+        alert("Erro ao deletar evento.");
+      } else {
+        loadEvents();
+      }
+    }
+
+    // Editar evento: busca o registro atual e pede novos valores via prompt
+    async function editEvent(id) {
+      const { data, error: fetchError } = await client
+        .from("events")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (fetchError) {
+        console.error(fetchError);
+        alert("Erro ao buscar evento para editar.");
+        return;
+      }
+
+      // prompts com valores atuais como padrão — se cancelar, mantém valor atual
+      let novoDia = prompt("Dia (ex: 02):", data.day_number);
+      if (novoDia === null) novoDia = data.day_number;
+      let novoDiaNome = prompt("Dia da semana (ex: DOMINGO):", data.day_name);
+      if (novoDiaNome === null) novoDiaNome = data.day_name;
+      let novaHora = prompt("Hora (ex: 16h):", data.hour);
+      if (novaHora === null) novaHora = data.hour;
+      let novoEvento = prompt("Evento (ex: Vôlei):", data.event);
+      if (novoEvento === null) novoEvento = data.event;
+      let novoLocal = prompt("Local (ex: Parque...):", data.local);
+      if (novoLocal === null) novoLocal = data.local;
+      let novoMonth = prompt("Mês (ex: Março):", data.month);
+      if (novoMonth === null) novoMonth = data.month;
+
+      const { error } = await client
+        .from("events")
+        .update({
+          day_number: novoDia,
+          day_name: novoDiaNome,
+          hour: novaHora,
+          event: novoEvento,
+          local: novoLocal,
+          month: novoMonth
+        })
+        .eq("id", id);
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao atualizar evento.");
+      } else {
+        loadEvents();
+      }
+    }
+
+    // inicializa
+    loadEvents();
+  </script>
+</body>
+</html>

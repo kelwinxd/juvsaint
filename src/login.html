@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Login — Painel Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; background:#f5f5f5; }
+    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.1); width:300px; }
+    input, button { width:100%; padding:10px; margin-top:8px; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Seu email" />
+    <input type="password" id="password" placeholder="Senha" />
+    <button id="loginBtn">Entrar</button>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lpobhoqdvdgijupmndqi.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwb2Job3FkdmRnaWp1cG1uZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MTgwMDIsImV4cCI6MjA3NDE5NDAwMn0.tUgbw218MhkUoWw96DvaQ3f-zu9xWiFf-w1oTp2m-kc";
+
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const { data, error } = await client.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        document.getElementById("msg").textContent = "Erro: " + error.message;
+      } else {
+        // login deu certo → vai para o admin
+        window.location.href = "admin.html";
+      }
+    });
+  </script>
+</body>
+</html>

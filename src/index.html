@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <title>Juv Santo Antônio</title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo"><img src="./assets/title1.svg" alt=""></div>
+        <div class="title">
+            <img src="./assets/title2.svg" alt="" class="main-title">
+            <h1 class="month" id="month">Março</h1>
+        
+        
+        </div>
+
+        <div class="cards-collection" id="cards">
+  <!--Card1-->
+  <div class="card">
+    <div class="date">
+        <p class="day-number">02</p>
+        <p class="day-name">DOMINGO</p>
+    </div>
+   
+    <div class="info">
+        <div class="event-info">
+            <span class="hour">   <i class="fa-regular fa-clock"></i>16h</span>
+            <div class="event">
+                <i class="fa-solid fa-volleyball"></i>
+
+
+                <span>Vôlei</span>
+            </div>
+        </div>
+      
+        <p class="local"><i class="fa fa-map-marker-alt"></i>Parque Jacarandás - SBO
+    </div>
+</div>
+
+<!--Card1-->
+<div class="card">
+    <div class="date">
+        <p class="day-number">04</p>
+        <p class="day-name">TERÇA</p>
+    </div>
+   
+    <div class="info">
+        <div class="event-info">
+            <span class="hour">   <i class="fa-regular fa-clock"></i>14h</span>
+            <div class="event ev3 small">
+                <i class="fa-regular fa-face-laugh-wink"></i>
+
+
+                <span>Workshop - Temperamentos</span>
+            </div>
+        </div>
+      
+        <p class="local"><i class="fa fa-map-marker-alt"></i>Santuário Basílica Santo Antônio de Padua
+    </div>
+</div>
+
+
+<!--Card1-->
+<div class="card">
+    <div class="date">
+        <p class="day-number">08</p>
+        <p class="day-name">SÁBADO</p>
+    </div>
+   
+    <div class="info">
+        <div class="event-info">
+            <span class="hour">   <i class="fa-regular fa-clock"></i>--:--</span>
+            <div class="event ev4">
+                <i class="fa-solid fa-church"></i>
+
+
+                <span>Visita Guiada Basílica</span>
+            </div>
+        </div>
+      
+        <p class="local"><i class="fa fa-map-marker-alt"></i>Santuário Basílica Santo Antônio de Padua
+    </div>
+</div>
+
+<!--Card1-->
+<div class="card">
+    <div class="date">
+        <p class="day-number">15-16</p>
+        <p class="day-name">SÁB E DOM</p>
+    </div>
+   
+    <div class="info">
+        <div class="event-info">
+            <span class="hour">   <i class="fa-regular fa-clock"></i>--:--</span>
+            <div class="event ev2">
+                <i class="fa-solid fa-masks-theater"></i>
+
+
+                <span>Atividade Teatro Paixão de Cristo</span>
+            </div>
+        </div>
+      
+        <p class="local"><i class="fa fa-map-marker-alt"></i>Santuário Basílica Santo Antônio de Padua
+    </div>
+</div>
+
+<!--Card1-->
+<div class="card">
+    <div class="date">
+        <p class="day-number">22</p>
+        <p class="day-name">SÁBADO</p>
+    </div>
+   
+    <div class="info">
+        <div class="event-info">
+            <span class="hour">   <i class="fa-regular fa-clock"></i>--:--</span>
+            <div class="event ev3">
+                <i class="fa-solid fa-hands-praying"></i>
+
+
+                <span>Missa Jovem com Encontro Quaresmal</span>
+            </div>
+        </div>
+      
+        <p class="local"><i class="fa fa-map-marker-alt"></i>Santuário Basílica Santo Antônio de Padua
+    </div>
+</div>
+
+
+
+<!--Card1-->
+<div class="card">
+    <div class="date">
+        <p class="day-number">30</p>
+        <p class="day-name">DOMINGO</p>
+    </div>
+   
+    <div class="info">
+        <div class="event-info">
+            <span class="hour">   <i class="fa-regular fa-clock"></i>--:--</span>
+            <div class="event ev4">
+                <i class="fa-solid fa-hands-praying"></i>
+
+
+                <span>Dia com as Focolarinas</span>
+            </div>
+        </div>
+      
+        <p class="local"><i class="fa fa-map-marker-alt"></i>Santuário Basílica Santo Antônio de Padua
+    </div>
+</div>
+<!--Card2-->
+<!--
+<div class="card off">
+A marcar...
+</div>
+
+
+-->
+
+
+
+
+        </div>
+
+        <div class="grupo">
+            <p class="title-whats">Grupo do Whats</p>
+  
+            <button class="btn-grupo"><i class="fa-brands fa-whatsapp"></i><a href="https://chat.whatsapp.com/KeNDm44WVov25mGDmToCkW">Entrar no Grupo</a></button>
+        </div>
+
+        
+<div class="contato">
+    <p class="title-contato">Contato</p>
+    <p class="contato-p">Coordenadora do Grupo:</p>
+
+    <div class="profile">
+      <div class="info-profile">
+        <img src="./assets/liderprofile.jpg" alt="">
+        <div class="phone">
+            <h2>Maria Luiza</h2>
+            <p style="background-color: green; padding: 1rem; border-radius: 10px;">(49) 99908-6422</p>
+        </div>
+       
+      </div>
+
+    </div>
+</div>
+    
+
+    </div>
+  <footer>
+    <p style="max-width: 300px; text-align: center; color: #fff;">Grupo de jovens do Santuario Basílica Santo Antonio</p>
+  </footer>
+
+
+  <script>
+    // -------- CONFIGURE AQUI ---------
+    const SUPABASE_URL = "https://lpobhoqdvdgijupmndqi.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwb2Job3FkdmRnaWp1cG1uZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MTgwMDIsImV4cCI6MjA3NDE5NDAwMn0.tUgbw218MhkUoWw96DvaQ3f-zu9xWiFf-w1oTp2m-kc";
+    // ---------------------------------
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const monthEl = document.getElementById("month");
+    const cardsEl = document.getElementById("cards");
+
+    async function loadEvents() {
+      cardsEl.innerHTML = "Carregando eventos...";
+
+      const { data, error } = await client
+        .from("events")
+        .select("*").order("day_number", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        cardsEl.innerHTML = "Erro ao carregar eventos.";
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        monthEl.textContent = "Nenhum evento";
+        cardsEl.innerHTML = "";
+        return;
+      }
+
+      // Define o mês pelo primeiro evento (pode ajustar se quiser)
+      monthEl.textContent = data[0].month || "Sem mês definido";
+
+      // Renderiza os cards
+      cardsEl.innerHTML = "";
+      data.forEach(ev => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="date">
+            <p class="day-number">${ev.day_number}</p>
+            <p class="day-name">${ev.day_name}</p>
+          </div>
+          <div class="info">
+            <div class="event-info">
+              <span class="hour"><i class="fa-regular fa-clock"></i> ${ev.hour}</span>
+              <div class="event">
+                <span>${ev.event}</span>
+              </div>
+            </div>
+            <p class="local"><i class="fa fa-map-marker-alt"></i> ${ev.local}</p>
+          </div>
+        `;
+        cardsEl.appendChild(card);
+      });
+    }
+
+    loadEvents();
+  </script>
+
+
+
+</body>
+</html>
