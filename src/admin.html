@@ -5,194 +5,242 @@
   <title>Painel Admin — Eventos</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width:800px; margin:auto; }
-    form { margin-bottom: 20px; display:grid; gap:8px; }
-    input, button { padding:8px; font-size:14px; }
-    .event-list { margin-top: 20px; }
-    .event-item { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius:6px; }
-    .actions { margin-top: 8px; }
-    .actions button { margin-right: 8px; }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width:900px; margin:auto; background:#f7f7f7; }
+    h1 { margin-bottom: 8px; }
+    form { margin-bottom: 20px; display:grid; gap:8px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    label { font-size:13px; color:#333; }
+    input, button, select { padding:8px; font-size:14px; }
+    .event-list { margin-top: 20px; display:flex; flex-direction:column; gap:10px; }
+    .event-item { border-radius:8px; padding:12px; background:#fff; border:1px solid #e6e6e6; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.03); }
+    .event-main { max-width:75%; }
+    .event-meta { font-size:13px; color:#333; margin-bottom:6px; }
+    .event-title { font-weight:700; margin-bottom:6px; padding:6px 8px; border-radius:6px; display:inline-block; }
+    .actions { display:flex; gap:8px; }
+    .actions button { padding:6px 10px; }
     .small { font-size:13px; color:#555; }
+    .top-actions { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    #logout { background:#ef5350; color:#fff; border:none; border-radius:6px; cursor:pointer; padding:8px 12px; }
+
+    /* modal */
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; }
+    .modal-content { background:#fff; padding:20px; border-radius:8px; width:400px; max-width:90%; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+    .modal-content h3 { margin-top:0; margin-bottom:12px; }
+    .modal-content form { box-shadow:none; padding:0; }
+    .close { float:right; cursor:pointer; font-size:18px; }
   </style>
 </head>
 <body>
-  <h1>Painel Admin</h1>
+  <div class="top-actions">
+    <h1>Painel Admin — Eventos</h1>
+    <div>
+      <button id="logout">Sair</button>
+    </div>
+  </div>
 
-  <!-- Formulário para adicionar novo evento (agora com month) -->
+  <!-- Formulário: com calendário e seletor de cor -->
   <form id="event-form">
-    <input type="text" id="day-number" placeholder="Dia (ex: 02)" required>
-    <input type="text" id="day-name" placeholder="Dia da semana (ex: DOMINGO)" required>
-    <input type="text" id="hour" placeholder="Hora (ex: 16h)" required>
-    <input type="text" id="event" placeholder="Evento (ex: Vôlei)" required>
-    <input type="text" id="local" placeholder="Local (ex: Parque Jacarandás - SBO)" required>
-    <input type="text" id="month" placeholder="Mês (ex: Março)" required>
+    <label for="date">Data (escolha no calendário)</label>
+    <input type="date" id="date" />
+
+    <div style="display:flex; gap:8px;">
+      <div style="flex:1;">
+        <label for="day-number">Dia</label>
+        <input type="number" id="day-number" required>
+      </div>
+      <div style="flex:1;">
+        <label for="day-name">Dia da semana</label>
+        <input type="text" id="day-name" required>
+      </div>
+      <div style="flex:1;">
+        <label for="month">Mês</label>
+        <input type="text" id="month" required>
+      </div>
+    </div>
+
+    <label for="hour">Hora</label>
+    <input type="text" id="hour" required>
+
+    <label for="event">Evento</label>
+    <input type="text" id="event" required>
+
+    <label for="local">Local</label>
+    <input type="text" id="local" required>
+
+    <label for="cor">Cor do card</label>
+    <input type="color" id="cor" value="#3b82f6">
+
     <button type="submit">Adicionar Evento</button>
   </form>
 
   <h2>Eventos cadastrados</h2>
   <div class="event-list" id="event-list"></div>
 
+  <!-- Modal de edição -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h3>Editar Evento</h3>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id">
+
+        <label>Data</label>
+        <input type="date" id="edit-date">
+
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1;">
+            <label>Dia</label>
+            <input type="number" id="edit-day-number" required>
+          </div>
+          <div style="flex:1;">
+            <label>Dia da semana</label>
+            <input type="text" id="edit-day-name" required>
+          </div>
+          <div style="flex:1;">
+            <label>Mês</label>
+            <input type="text" id="edit-month" required>
+          </div>
+        </div>
+
+        <label>Hora</label>
+        <input type="text" id="edit-hour" required>
+
+        <label>Evento</label>
+        <input type="text" id="edit-event" required>
+
+        <label>Local</label>
+        <input type="text" id="edit-local" required>
+
+        <label>Cor</label>
+        <input type="color" id="edit-cor" value="#3b82f6">
+
+        <button type="submit">Salvar alterações</button>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // --------- CONFIGURE AQUI (cole sua URL e ANON KEY do Supabase) -----------
     const SUPABASE_URL = "https://lpobhoqdvdgijupmndqi.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwb2Job3FkdmRnaWp1cG1uZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MTgwMDIsImV4cCI6MjA3NDE5NDAwMn0.tUgbw218MhkUoWw96DvaQ3f-zu9xWiFf-w1oTp2m-kc";
-    // -------------------------------------------------------------------------
-
-    // Verifica se usuário está logado
-
-
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwb2Job3FkdmRnaWp1cG1uZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MTgwMDIsImV4cCI6MjA3NDE5NDAwMn0.tUgbw218MhkUoWw96DvaQ3f-zu9xWiFf-w1oTp2m-kc"; 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-client.auth.getSession().then(({ data }) => {
-  if (!data.session) {
-    // não logado → manda pro login
-    window.location.href = "login.html";
-  }
-});
-    const form = document.getElementById("event-form");
-    const eventList = document.getElementById("event-list");
 
-    // Carrega todos os eventos e renderiza como lista simples
+    const dayNames = ["DOMINGO","SEGUNDA","TERÇA","QUARTA","QUINTA","SEXTA","SÁBADO"];
+    const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+    function contrastTextColor(hex) {
+      const c = hex.replace("#", "");
+      const r = parseInt(c.substring(0,2),16);
+      const g = parseInt(c.substring(2,4),16);
+      const b = parseInt(c.substring(4,6),16);
+      const luminance = (0.2126*r + 0.7152*g + 0.0722*b) / 255;
+      return luminance > 0.6 ? "#000" : "#fff";
+    }
+
+    // --- FORM ADD ---
+    const dateInput = document.getElementById("date");
+    dateInput.addEventListener("change", (e) => {
+      const d = new Date(e.target.value + "T00:00:00");
+      document.getElementById("day-number").value = d.getDate();
+      document.getElementById("day-name").value = dayNames[d.getDay()];
+      document.getElementById("month").value = monthNames[d.getMonth()];
+    });
+
+    const form = document.getElementById("event-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = {
+        day_number: parseInt(document.getElementById("day-number").value),
+        day_name: document.getElementById("day-name").value.trim(),
+        hour: document.getElementById("hour").value.trim(),
+        event: document.getElementById("event").value.trim(),
+        local: document.getElementById("local").value.trim(),
+        month: document.getElementById("month").value.trim(),
+        cor: document.getElementById("cor").value
+      };
+      const { error } = await client.from("events").insert([data]);
+      if (error) { alert("Erro ao inserir"); console.error(error); }
+      else { form.reset(); loadEvents(); }
+    });
+
+    // --- LISTAGEM ---
+    const eventList = document.getElementById("event-list");
     async function loadEvents() {
       eventList.innerHTML = "Carregando...";
-      const { data, error } = await client
-        .from("events")
-        .select("*")
-        .order("id", { ascending: true });
-
-      if (error) {
-        eventList.innerHTML = "<p class='small'>Erro ao carregar eventos. Veja console.</p>";
-        console.error(error);
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        eventList.innerHTML = "<p class='small'>Nenhum evento cadastrado.</p>";
-        return;
-      }
-
+      const { data, error } = await client.from("events").select("*").order("day_number",{ascending:true});
+      if (error) { console.error(error); return; }
       eventList.innerHTML = "";
       data.forEach(ev => {
         const div = document.createElement("div");
         div.className = "event-item";
-
-        // mostra o mês junto ao título do evento (você pode adaptar)
+        const textColor = contrastTextColor(ev.cor || "#ccc");
         div.innerHTML = `
-          <strong>${ev.day_number} ${ev.day_name} <span class="small">— ${ev.month || ""}</span></strong><br>
-          <span class="small">Hora:</span> ${ev.hour} <br>
-          <span class="small">Evento:</span> ${ev.event} <br>
-          <span class="small">Local:</span> ${ev.local} <br>
+          <div class="event-main">
+            <div class="event-meta">
+              <strong>${ev.day_number} ${ev.day_name}</strong> — ${ev.month} <span class="small">Hora: ${ev.hour}</span>
+            </div>
+            <div class="event-title" style="background:${ev.cor};color:${textColor};">${ev.event}</div>
+            <div class="small">Local: ${ev.local}</div>
+          </div>
+          <div class="actions">
+            <button onclick="openEdit(${ev.id})">Editar</button>
+            <button onclick="deleteEvent(${ev.id})">Deletar</button>
+          </div>
         `;
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-
-        const btnEdit = document.createElement("button");
-        btnEdit.type = "button";
-        btnEdit.textContent = "Editar";
-        btnEdit.addEventListener("click", () => editEvent(ev.id));
-
-        const btnDelete = document.createElement("button");
-        btnDelete.type = "button";
-        btnDelete.textContent = "Deletar";
-        btnDelete.addEventListener("click", () => deleteEvent(ev.id));
-
-        actions.appendChild(btnEdit);
-        actions.appendChild(btnDelete);
-        div.appendChild(actions);
-
         eventList.appendChild(div);
       });
     }
 
-    // Inserir novo evento (inclui month)
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const day_number = document.getElementById("day-number").value.trim();
-      const day_name   = document.getElementById("day-name").value.trim();
-      const hour       = document.getElementById("hour").value.trim();
-      const eventName  = document.getElementById("event").value.trim();
-      const local      = document.getElementById("local").value.trim();
-      const month      = document.getElementById("month").value.trim();
+    async function deleteEvent(id) {
+      if (!confirm("Deletar?")) return;
+      await client.from("events").delete().eq("id", id);
+      loadEvents();
+    }
 
-      if (!day_number || !day_name || !hour || !eventName || !local || !month) {
-        alert("Preencha todos os campos.");
-        return;
-      }
+    // --- MODAL EDIT ---
+    const modal = document.getElementById("editModal");
+    const closeModal = document.getElementById("closeModal");
+    closeModal.onclick = () => modal.style.display = "none";
 
-      const { error } = await client.from("events").insert([
-        { day_number, day_name, hour, event: eventName, local, month }
-      ]);
+    window.openEdit = async (id) => {
+      const { data } = await client.from("events").select("*").eq("id", id).single();
+      if (!data) return;
+      document.getElementById("edit-id").value = id;
+      document.getElementById("edit-day-number").value = data.day_number;
+      document.getElementById("edit-day-name").value = data.day_name;
+      document.getElementById("edit-month").value = data.month;
+      document.getElementById("edit-hour").value = data.hour;
+      document.getElementById("edit-event").value = data.event;
+      document.getElementById("edit-local").value = data.local;
+      document.getElementById("edit-cor").value = data.cor || "#3b82f6";
+      modal.style.display = "flex";
+    };
 
-      if (error) {
-        console.error(error);
-        alert("Erro ao adicionar evento. Veja console.");
-      } else {
-        form.reset();
-        loadEvents();
-      }
+    const editDateInput = document.getElementById("edit-date");
+    editDateInput.addEventListener("change", (e) => {
+      const d = new Date(e.target.value + "T00:00:00");
+      document.getElementById("edit-day-number").value = d.getDate();
+      document.getElementById("edit-day-name").value = dayNames[d.getDay()];
+      document.getElementById("edit-month").value = monthNames[d.getMonth()];
     });
 
-    // Deletar evento
-    async function deleteEvent(id) {
-      if (!confirm("Deseja realmente deletar este evento?")) return;
-      const { error } = await client.from("events").delete().eq("id", id);
-      if (error) {
-        console.error(error);
-        alert("Erro ao deletar evento.");
-      } else {
-        loadEvents();
-      }
-    }
+    const editForm = document.getElementById("edit-form");
+    editForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("edit-id").value;
+      const update = {
+        day_number: parseInt(document.getElementById("edit-day-number").value),
+        day_name: document.getElementById("edit-day-name").value.trim(),
+        hour: document.getElementById("edit-hour").value.trim(),
+        event: document.getElementById("edit-event").value.trim(),
+        local: document.getElementById("edit-local").value.trim(),
+        month: document.getElementById("edit-month").value.trim(),
+        cor: document.getElementById("edit-cor").value
+      };
+      await client.from("events").update(update).eq("id", id);
+      modal.style.display = "none";
+      loadEvents();
+    });
 
-    // Editar evento: busca o registro atual e pede novos valores via prompt
-    async function editEvent(id) {
-      const { data, error: fetchError } = await client
-        .from("events")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (fetchError) {
-        console.error(fetchError);
-        alert("Erro ao buscar evento para editar.");
-        return;
-      }
-
-      // prompts com valores atuais como padrão — se cancelar, mantém valor atual
-      let novoDia = prompt("Dia (ex: 02):", data.day_number);
-      if (novoDia === null) novoDia = data.day_number;
-      let novoDiaNome = prompt("Dia da semana (ex: DOMINGO):", data.day_name);
-      if (novoDiaNome === null) novoDiaNome = data.day_name;
-      let novaHora = prompt("Hora (ex: 16h):", data.hour);
-      if (novaHora === null) novaHora = data.hour;
-      let novoEvento = prompt("Evento (ex: Vôlei):", data.event);
-      if (novoEvento === null) novoEvento = data.event;
-      let novoLocal = prompt("Local (ex: Parque...):", data.local);
-      if (novoLocal === null) novoLocal = data.local;
-      let novoMonth = prompt("Mês (ex: Março):", data.month);
-      if (novoMonth === null) novoMonth = data.month;
-
-      const { error } = await client
-        .from("events")
-        .update({
-          day_number: novoDia,
-          day_name: novoDiaNome,
-          hour: novaHora,
-          event: novoEvento,
-          local: novoLocal,
-          month: novoMonth
-        })
-        .eq("id", id);
-
-      if (error) {
-        console.error(error);
-        alert("Erro ao atualizar evento.");
-      } else {
-        loadEvents();
-      }
-    }
-
-    // inicializa
+    // init
     loadEvents();
   </script>
 </body>
