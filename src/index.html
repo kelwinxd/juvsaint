@@ -210,51 +210,57 @@ A marcar...
     const monthEl = document.getElementById("month");
     const cardsEl = document.getElementById("cards");
 
-    async function loadEvents() {
-      cardsEl.innerHTML = "Carregando eventos...";
+   async function loadEvents() {
+  cardsEl.innerHTML = "Carregando eventos...";
 
-      const { data, error } = await client
-        .from("events")
-        .select("*").order("day_number", { ascending: true });
+  const { data, error } = await client
+    .from("events")
+    .select("*")
+    .order("day_number", { ascending: true });
 
-      if (error) {
-        console.error(error);
-        cardsEl.innerHTML = "Erro ao carregar eventos.";
-        return;
-      }
+  if (error) {
+    console.error(error);
+    cardsEl.innerHTML = "Erro ao carregar eventos.";
+    return;
+  }
 
-      if (!data || data.length === 0) {
-        monthEl.textContent = "Nenhum evento";
-        cardsEl.innerHTML = "";
-        return;
-      }
+  if (!data || data.length === 0) {
+    monthEl.textContent = "Nenhum evento";
+    cardsEl.innerHTML = "";
+    return;
+  }
 
-      // Define o mês pelo primeiro evento (pode ajustar se quiser)
-      monthEl.textContent = data[0].month || "Sem mês definido";
+  // Define o mês pelo primeiro evento
+  monthEl.textContent = data[0].month || "Sem mês definido";
 
-      // Renderiza os cards
-      cardsEl.innerHTML = "";
-      data.forEach(ev => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <div class="date">
-            <p class="day-number">${ev.day_number}</p>
-            <p class="day-name">${ev.day_name}</p>
+  // Renderiza os cards
+  cardsEl.innerHTML = "";
+  data.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    // usa cor se existir, senão aplica cinza claro
+    const bgColor = ev.color || "#f0f0f0";
+    const borderColor = ev.color || "#ccc";
+
+    card.innerHTML = `
+      <div class="date">
+        <p class="day-number">${ev.day_number}</p>
+        <p class="day-name">${ev.day_name}</p>
+      </div>
+      <div class="info">
+        <div class="event-info">
+          <span class="hour"><i class="fa-regular fa-clock"></i> ${ev.hour}</span>
+          <div class="event" style="background-color:${bgColor}; border: 2px solid ${borderColor}; border-radius:6px; padding:4px 8px;">
+            <span>${ev.event}</span>
           </div>
-          <div class="info">
-            <div class="event-info">
-              <span class="hour"><i class="fa-regular fa-clock"></i> ${ev.hour}</span>
-              <div class="event">
-                <span>${ev.event}</span>
-              </div>
-            </div>
-            <p class="local"><i class="fa fa-map-marker-alt"></i> ${ev.local}</p>
-          </div>
-        `;
-        cardsEl.appendChild(card);
-      });
-    }
+        </div>
+        <p class="local"><i class="fa fa-map-marker-alt"></i> ${ev.local}</p>
+      </div>
+    `;
+    cardsEl.appendChild(card);
+  });
+}
 
     loadEvents();
   </script>
