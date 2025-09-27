@@ -6,27 +6,55 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width:900px; margin:auto; background:#f7f7f7; }
-    h1 { margin-bottom: 8px; }
-    form { margin-bottom: 20px; display:grid; gap:8px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
-    label { font-size:13px; color:#333; }
-    input, button, select { padding:8px; font-size:14px; }
+    h1, h2 { margin-bottom: 12px; font-size: 22px; }
+    form { margin-bottom: 20px; display:grid; gap:12px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    label { font-size:15px; color:#333; font-weight: 600; }
+    input, button, select { padding:10px; font-size:15px; border:1px solid #ccc; border-radius:6px; width:100%; box-sizing:border-box; }
     .event-list { margin-top: 20px; display:flex; flex-direction:column; gap:10px; }
-    .event-item { border-radius:8px; padding:12px; background:#fff; border:1px solid #e6e6e6; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.03); }
+    .event-item { border-radius:8px; padding:12px; background:#fff; border:1px solid #e6e6e6; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.03); flex-wrap:wrap; }
     .event-main { max-width:75%; }
-    .event-meta { font-size:13px; color:#333; margin-bottom:6px; }
+    .event-meta { font-size:14px; color:#333; margin-bottom:6px; }
     .event-title { font-weight:700; margin-bottom:6px; padding:6px 8px; border-radius:6px; display:inline-block; }
-    .actions { display:flex; gap:8px; }
-    .actions button { padding:6px 10px; }
+    .actions { display:flex; gap:8px; flex-shrink:0; }
+    .actions button { padding:6px 10px; font-size:14px; }
     .small { font-size:13px; color:#555; }
-    .top-actions { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-    #logout { background:#ef5350; color:#fff; border:none; border-radius:6px; cursor:pointer; padding:8px 12px; }
-
+    .top-actions { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    #logout { background:#ef5350; color:#fff; border:none; border-radius:6px; cursor:pointer; padding:8px 12px; font-size:15px; }
+    button {
+      cursor: pointer;
+    }
     /* modal */
-    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; }
-    .modal-content { background:#fff; padding:20px; border-radius:8px; width:400px; max-width:90%; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
-    .modal-content h3 { margin-top:0; margin-bottom:12px; }
-    .modal-content form { box-shadow:none; padding:0; }
-    .close { float:right; cursor:pointer; font-size:18px; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; padding:20px; }
+    .modal-content { background:#fff; padding:20px; border-radius:8px; width:100%; max-width:450px; box-shadow:0 4px 12px rgba(0,0,0,0.2); max-height:90vh; overflow-y:auto; }
+    .modal-content h3 { margin-top:0; margin-bottom:12px; font-size:18px; }
+    .modal-content form { box-shadow:none; padding:0; gap:12px; }
+    .close { float:right; cursor:pointer; font-size:20px; font-weight:bold; }
+
+    /* preview cor */
+    .cat-cor {
+      display:inline-block;
+      width: 24px;
+      height: 24px;
+      margin-left: 8px;
+      border: 1px solid #ccc;
+      border-radius:4px;
+    }
+
+    form button {
+      background-color: rgb(17, 95, 184);
+      color: #fff;
+    }
+
+    /* mobile */
+    @media(max-width:600px) {
+      body { padding:12px; }
+      h1, h2 { font-size:18px; }
+      input, button, select { font-size:14px; padding:8px; }
+
+      .event-main { max-width:100%; }
+      .event-item { flex-direction:column; align-items:flex-start; }
+      .actions { margin-top:8px; }
+    }
   </style>
 </head>
 <body>
@@ -37,7 +65,7 @@
     </div>
   </div>
 
-  <!-- Formulário: com calendário e seletor de cor -->
+  <!-- Formulário -->
   <form id="event-form">
     <label for="date">Data (escolha no calendário)</label>
     <input type="date" id="date" />
@@ -67,7 +95,10 @@
     <input type="text" id="local" required>
 
     <label for="cor">Cor do card</label>
-    <input type="color" id="cor" value="#3b82f6">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <input type="color" id="cor" value="#3b82f6">
+      <span class="cat-cor"></span>
+    </div>
 
     <button type="submit">Adicionar Evento</button>
   </form>
@@ -113,7 +144,7 @@
         <label>Cor</label>
         <input type="color" id="edit-cor" value="#3b82f6">
 
-        <button type="submit">Salvar alterações</button>
+        <button type="submit" >Salvar alterações</button>
       </form>
     </div>
   </div>
@@ -188,6 +219,16 @@
         eventList.appendChild(div);
       });
     }
+
+    // preview cor no formulário
+    window.addEventListener('DOMContentLoaded', () => {
+      const inputCor = document.getElementById('cor');
+      const preview = document.querySelector('.cat-cor');
+      preview.style.backgroundColor = inputCor.value;
+      inputCor.addEventListener('change', () => {
+        preview.style.backgroundColor = inputCor.value;
+      });
+    });
 
     async function deleteEvent(id) {
       if (!confirm("Deletar?")) return;
